@@ -21,7 +21,14 @@ export class EventsGateway implements OnGatewayConnection {
 
   @SubscribeMessage('removeCity')
   removeCity(@MessageBody() data: string) {
-    this.weatherCities.removeCity(data);
+    this.weatherCities.removeCity(data.toLowerCase());
+    this.server.emit('cities', this.weatherCities.getCities());
+  }
+
+  @SubscribeMessage('removeAllCities')
+  removeAllCities() {
+    console.log('🚀 ~ removeAllCities ~ removeAllCities');
+    this.weatherCities.removeAllCities();
     this.server.emit('cities', this.weatherCities.getCities());
   }
 
@@ -32,8 +39,18 @@ export class EventsGateway implements OnGatewayConnection {
 
   @SubscribeMessage('search')
   handleEvent(@MessageBody() data: string) {
-    this.weatherCities.addNewCity(data).then(() => {
-      this.server.emit('cities', this.weatherCities.getCities());
-    });
+    const cityName = data.toLowerCase();
+    if (!this.weatherCities.cityAlreadyExist(cityName)) {
+      this.weatherCities
+        .addNewCity(cityName)
+        .then(() => {
+          this.server.emit('cities', this.weatherCities.getCities());
+        })
+        .catch(() => {
+          this.server.emit('error', 'City not found');
+        });
+    } else {
+      this.server.emit('error', 'City already exist');
+    }
   }
 }

@@ -31,9 +31,15 @@ export class WeatherCitiesService {
     console.log('🚀 ~ updateWeather ~ updateWeather', this.cities);
   }
 
-  getWeatherByCity() {}
+  removeAllCities() {
+    this.cities = [];
+  }
 
   removeCity(name: string) {
     this.cities = this.cities.filter((city) => city.name !== name);
+  }
+
+  cityAlreadyExist(name: string): boolean {
+    return this.cities.some((city) => city.name === name);
   }
 }
